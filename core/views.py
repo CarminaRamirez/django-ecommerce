@@ -29,19 +29,19 @@ def products(request):
     return render(request, "products.html", context)
 
 
-def is_valid_form(values):
-    valid = True
-    for field in values:
-        if field == '':
-            valid = False
-    return valid
+def is_valid_form(valores):
+    valido = True
+    for campo in valores:
+        if campo == '':
+            valido = False
+    return valido
 
 
 class CheckoutView(View):
     def get(self, *args, **kwargs):
         try:
-            order = Order.objects.get(user=self.request.user, ordered=False)
-            form = CheckoutForm()
+            order = Order.objects.get(user=self.request.user, ordered=False) # Guarda en order la orden del usuario que está ingresando y que no fue ordenada
+            form = CheckoutForm() # Formulario de chechout
             context = {
                 'form': form,
                 'couponform': CouponForm(),
