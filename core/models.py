@@ -7,88 +7,90 @@ from django_countries.fields import CountryField
 
 
 CATEGORY_CHOICES = (
-    ('S', 'Shirt'),
-    ('SW', 'Sport wear'),
-    ('OW', 'Outwear')
-)
+    ('S', 'remera'),
+    ('SW', 'Ropa deportiva'),
+    ('OW', 'Ropa de salir')
+) # opciones de categoría
 
 LABEL_CHOICES = (
-    ('P', 'primary'),
-    ('S', 'secondary'),
-    ('D', 'danger')
-)
+    ('P', 'primario'),
+    ('S', 'secundario'),
+    ('D', 'peligroso')
+) # opciones de label
 
 ADDRESS_CHOICES = (
-    ('B', 'Billing'),
-    ('S', 'Shipping'),
-)
+    ('B', 'Envío'),
+    ('S', 'Facturación'),
+) # opciones de dirección
 
 
-class UserProfile(models.Model):
+class UserProfile(models.Model): # Perfil de usuario
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    stripe_customer_id = models.CharField(max_length=50, blank=True, null=True)
-    one_click_purchasing = models.BooleanField(default=False)
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE) # Usuario contiene el modelo con relación uno a uno de 'AUTH_USER_MODEL' y 'CASCADE'
+    stripe_customer_id = models.CharField(max_length=50, blank=True, null=True) # id del cliente es un campo char con parámetros de diferentes
+                                                                                # atributos
+    one_click_purchasing = models.BooleanField(default=False) # compra con un click, campo booleano, el valor por defecto es Falso
 
-    def __str__(self):
+    def __str__(self): # función str, retorna el nombre del usuario
         return self.user.username
 
 
-class Item(models.Model):
+class Item(models.Model): # clase item (producto) con sus atributos
     title = models.CharField(max_length=100)
     price = models.FloatField()
-    discount_price = models.FloatField(blank=True, null=True)
-    category = models.CharField(choices=CATEGORY_CHOICES, max_length=2)
-    label = models.CharField(choices=LABEL_CHOICES, max_length=1)
-    slug = models.SlugField()
-    description = models.TextField()
-    image = models.ImageField()
+    discount_price = models.FloatField(blank=True, null=True) # precio con descuento, puede no tener valor (null), blanck=true indica que el campo
+                                                              # no es obligatorio
+    category = models.CharField(choices=CATEGORY_CHOICES, max_length=2) # categoria es un campo char que contiene opciones y
+    label = models.CharField(choices=LABEL_CHOICES, max_length=1) # el max_length contempla la "clave" de las opciones, por eso es = 1
+    slug = models.SlugField() # lo que se guarda en slug se utiliza para la url de ese item
+    description = models.TextField() # descripcion
+    image = models.ImageField() # imagen
 
-    def __str__(self):
+    def __str__(self): # función que devuelve el titulo del item
         return self.title
 
-    def get_absolute_url(self):
+    def get_absolute_url(self): # retorna la url completa con el slug de este producto
         return reverse("core:product", kwargs={
             'slug': self.slug
         })
 
-    def get_add_to_cart_url(self):
+    def get_add_to_cart_url(self): # retorna la url de agregar al carrito
         return reverse("core:add-to-cart", kwargs={
             'slug': self.slug
         })
 
-    def get_remove_from_cart_url(self):
+    def get_remove_from_cart_url(self): # retorna la url de eliminar del carrito
         return reverse("core:remove-from-cart", kwargs={
             'slug': self.slug
         })
 
 
-class OrderItem(models.Model):
+class OrderItem(models.Model): # modelo de orden del item
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             on_delete=models.CASCADE)
-    ordered = models.BooleanField(default=False)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    quantity = models.IntegerField(default=1)
+                             on_delete=models.CASCADE) # usuario con clave foranea de los modelos 'AUTH_USER_MODEL' y 'CASCADE'
+    ordered = models.BooleanField(default=False) # ordenado, booleano
+    item = models.ForeignKey(Item, on_delete=models.CASCADE) # item de clave foranea entre 'Item' y 'CASCADE'
+    quantity = models.IntegerField(default=1) # cantidad de productos, como defecto = 1
 
-    def __str__(self):
+    def __str__(self): # retorna un string con las variables cantidad y titulo (utiliza f al comienzo del string para poder iterar con las variables)
         return f"{self.quantity} of {self.item.title}"
 
-    def get_total_item_price(self):
+    def get_total_item_price(self): # retorna el total del precio del item (precio*cantidad)
         return self.quantity * self.item.price
 
-    def get_total_discount_item_price(self):
+    def get_total_discount_item_price(self): # retorna el total del precio de descuento del item (precio*cantidad)
         return self.quantity * self.item.discount_price
 
-    def get_amount_saved(self):
+    def get_amount_saved(self): # retorna la cantidad ahorrada con el precio de descuento
         return self.get_total_item_price() - self.get_total_discount_item_price()
 
-    def get_final_price(self):
+    def get_final_price(self): # precio final
         if self.item.discount_price:
             return self.get_total_discount_item_price()
         return self.get_total_item_price()
 
 
-class Order(models.Model):
+class Order(models.Model): # orden
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
     ref_code = models.CharField(max_length=20, blank=True, null=True)
