@@ -11,7 +11,7 @@
         <!--Grid column-->
         <div class="col-md-6 mb-4">
 
-          <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Products/14.jpg" class="img-fluid" alt="">
+          <img src="{{ object.image.url }}" class="img-fluid" alt="">
 
         </div>
         <!--Grid column-->
@@ -39,7 +39,7 @@
               {% endif %}
             </p>
 
-            <p class="lead font-weight-bold">Description</p>
+            <p class="lead font-weight-bold">Descripción</p>
 
             <p>{{ object.description }}</p>
 
@@ -53,12 +53,14 @@
 
             </form> {% endcomment %}
             <a href="{{ object.get_add_to_cart_url }}" class="btn btn-primary btn-md my-0 p">
-              Add to cart
+              Agregar
               <i class="fas fa-shopping-cart ml-1"></i>
             </a>
+            {% comment %}
             <a href="{{ object.get_remove_from_cart_url }}" class="btn btn-danger btn-md my-0 p">
-              Remove from cart
+              Eliminar del carrito
             </a>
+            {% endcomment %}
 
           </div>
           <!--Content-->

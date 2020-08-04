@@ -8,7 +8,7 @@
       <nav class="navbar navbar-expand-lg navbar-dark mdb-color lighten-3 mt-3 mb-5">
 
         <!-- Navbar brand -->
-        <span class="navbar-brand">Categories:</span>
+        <span class="navbar-brand">Categorías:</span>
 
         <!-- Collapse button -->
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#basicExampleNav"
@@ -27,13 +27,13 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Shirts</a>
+              <a class="nav-link" href="#">remeras</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Sport wears</a>
+              <a class="nav-link" href="#">Ropa deportiva</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Outwears</a>
+              <a class="nav-link" href="#">Ropa de salir</a>
             </li>
 
           </ul>
@@ -41,7 +41,7 @@
 
           <form class="form-inline">
             <div class="md-form my-0">
-              <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+              <input class="form-control mr-sm-2" type="text" placeholder="Buscar" aria-label="Search">
             </div>
           </form>
         </div>
@@ -75,7 +75,7 @@
                 <h5>
                   <strong>
                     <a href="{{ item.get_absolute_url }}" class="dark-grey-text">{{ item.title }}
-                      <span class="badge badge-pill {{ item.get_label_display }}-color">NEW</span>
+                      <span class="badge badge-pill success-color">NEW</span>
                     </a>
                   </strong>
                 </h5>
@@ -83,9 +83,9 @@
                 <h4 class="font-weight-bold blue-text">
                   <strong>$
                   {% if item.discount_price %}
-                  {{ item.discount_price }}
+                  {{ item.discount_price|floatformat:2 }}
                   {% else %}
-                  {{ item.price }}
+                  {{ item.price|floatformat:2 }}
                   {% endif %}
                   </strong>
                 </h4>

@@ -47,64 +47,68 @@ class CheckoutView(View):
                 'couponform': CouponForm(),
                 'order': order,
                 'DISPLAY_COUPON_FORM': True
-            }
+            } # contexto para la plantilla
 
             shipping_address_qs = Address.objects.filter(
                 user=self.request.user,
                 address_type='S',
                 default=True
-            )
-            if shipping_address_qs.exists():
+            ) #objetos de tipo dirección filtrados por el usuario correspondiente, del tipo envío, por defecto
+            if shipping_address_qs.exists(): # si existen objetos de lo anterior
                 context.update(
-                    {'default_shipping_address': shipping_address_qs[0]})
+                    {'default_shipping_address': shipping_address_qs[0]}) # actualiza el contexto agregandole el
+                                                                          # el primer objeto de la lista
 
             billing_address_qs = Address.objects.filter(
                 user=self.request.user,
                 address_type='B',
                 default=True
-            )
-            if billing_address_qs.exists():
+            ) # #objetos de tipo dirección filtrados por el usuario correspondiente, del tipo facturación, por defecto
+            if billing_address_qs.exists(): # si existen objetos de lo anterior
                 context.update(
-                    {'default_billing_address': billing_address_qs[0]})
-            return render(self.request, "checkout.html", context)
-        except ObjectDoesNotExist:
-            messages.info(self.request, "You do not have an active order")
-            return redirect("core:checkout")
+                    {'default_billing_address': billing_address_qs[0]}) # actualiza el contexto agregandole el
+                                                                        # el primer objeto de la lista
+            return render(self.request, "checkout.html", context) # retorna el render con el request, la plantilla,
+                                                                  # y el contexto que aplica a la plantilla
+        except ObjectDoesNotExist: # si el objeto no existe
+            messages.info(self.request, "No tienes una orden activa") # Mensaje de error
+            return redirect("core:checkout") # redirecciona a la url que contiene como name: "checkout", de la app "core"
 
     def post(self, *args, **kwargs):
-        form = CheckoutForm(self.request.POST or None)
+        form = CheckoutForm(self.request.POST or None) # formulario de checkeo, ver los parámetros
         try:
-            order = Order.objects.get(user=self.request.user, ordered=False)
-            if form.is_valid():
+            order = Order.objects.get(user=self.request.user, ordered=False) # orden del usuario sin ordenar
+            if form.is_valid(): # si el formulario es valido
 
                 use_default_shipping = form.cleaned_data.get(
-                    'use_default_shipping')
-                if use_default_shipping:
-                    print("Using the defualt shipping address")
+                    'use_default_shipping') # usar el envío por defecto contiene los datos limpios del formulario
+                if use_default_shipping: # si usa el envío por defecto
+                    print("Usando la dirección de envío por defecto") #imprime
                     address_qs = Address.objects.filter(
                         user=self.request.user,
                         address_type='S',
                         default=True
-                    )
-                    if address_qs.exists():
-                        shipping_address = address_qs[0]
-                        order.shipping_address = shipping_address
-                        order.save()
-                    else:
+                    ) # contiene las direcciones filtradas por el usuario correspondiente, de tipo envío, por defecto
+                    if address_qs.exists(): # si hay algún objeto con las condiciones anteriores
+                        shipping_address = address_qs[0] # guarda en esta variable el primer elemento de la lista
+                        order.shipping_address = shipping_address # guarda en el atributo de la orden la dirección de envio
+                        order.save() # guarda lo modificado en la orden
+                    else: # si no hay objetos
                         messages.info(
-                            self.request, "No default shipping address available")
+                            self.request, "Direcciones de envío por defecto no disponibles")
                         return redirect('core:checkout')
-                else:
-                    print("User is entering a new shipping address")
+                else: # si no usa el envío por defecto
+                    print("Usuario está ingresando una dirección de envío nueva")
                     shipping_address1 = form.cleaned_data.get(
-                        'shipping_address')
+                        'shipping_address') # dirección de envío 1, datos limpios del form
                     shipping_address2 = form.cleaned_data.get(
-                        'shipping_address2')
+                        'shipping_address2') # dirección de envío 2
                     shipping_country = form.cleaned_data.get(
-                        'shipping_country')
-                    shipping_zip = form.cleaned_data.get('shipping_zip')
+                        'shipping_country') # país de envío
+                    shipping_zip = form.cleaned_data.get('shipping_zip') # código postal de envío
 
-                    if is_valid_form([shipping_address1, shipping_country, shipping_zip]):
+                    if is_valid_form([shipping_address1, shipping_country, shipping_zip]): # si el form es valido con los
+                                                                                           # atributos pasados por parámetro
                         shipping_address = Address(
                             user=self.request.user,
                             street_address=shipping_address1,
@@ -112,38 +116,38 @@ class CheckoutView(View):
                             country=shipping_country,
                             zip=shipping_zip,
                             address_type='S'
-                        )
-                        shipping_address.save()
+                        ) # crea una direccion
+                        shipping_address.save() # guarda la direccion de envio
 
                         order.shipping_address = shipping_address
-                        order.save()
+                        order.save() # guarda la dirección de envío en la orden
 
                         set_default_shipping = form.cleaned_data.get(
-                            'set_default_shipping')
-                        if set_default_shipping:
-                            shipping_address.default = True
-                            shipping_address.save()
+                            'set_default_shipping') # establece el envío por defecto con los datos limpios del formulario
+                        if set_default_shipping: # si hay envio por defecto
+                            shipping_address.default = True # direccion de envio por defecto en true
+                            shipping_address.save() # guarda
 
-                    else:
+                    else: # si el formulario es inválido
                         messages.info(
-                            self.request, "Please fill in the required shipping address fields")
+                            self.request, "Por favor completa en los campos de dirección de envío requeridos")
 
                 use_default_billing = form.cleaned_data.get(
-                    'use_default_billing')
+                    'use_default_billing') # usa la facturación por defecto
                 same_billing_address = form.cleaned_data.get(
-                    'same_billing_address')
+                    'same_billing_address') # misma dirección de facturación
 
-                if same_billing_address:
-                    billing_address = shipping_address
-                    billing_address.pk = None
-                    billing_address.save()
-                    billing_address.address_type = 'B'
-                    billing_address.save()
-                    order.billing_address = billing_address
-                    order.save()
+                if same_billing_address: # si es la misma
+                    billing_address = shipping_address # completa la dirección de facturación con la dirección de envío
+                    billing_address.pk = None # no tiene clave primaria
+                    billing_address.save() # guarda
+                    billing_address.address_type = 'B' # tipo de direccion
+                    billing_address.save() # guarda
+                    order.billing_address = billing_address # direccion de facturacion de la orden
+                    order.save() # guarda la orden
 
-                elif use_default_billing:
-                    print("Using the defualt billing address")
+                elif use_default_billing: # si usa la facturación por defecto
+                    print("Usar la dirección de facturación por defecto")
                     address_qs = Address.objects.filter(
                         user=self.request.user,
                         address_type='B',
@@ -349,6 +353,12 @@ class HomeView(ListView):
     model = Item
     paginate_by = 10
     template_name = "home.html"
+
+def buscar(request):
+    context = {
+        'items': Item.objects.filter(request.item.slug)
+    }
+    return render(request, "products.html", context)
 
 
 class OrderSummaryView(LoginRequiredMixin, View):
