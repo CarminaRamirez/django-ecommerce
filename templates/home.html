@@ -38,12 +38,33 @@
 
           </ul>
           <!-- Links -->
+          {% comment %}
+          <div class="container right">
+            <div class="row">
+              <div class="col-md-12 right search">
+                <form method="get">
+                  <div id="custom-search-input">
+                    <div class="input-group col-md-12 right">
+                      <input type="text" class="from-control mr-sm-2" placeholder="Buscar.." name="buscar">
+                      <span class="input-group-list">
+                        <i class="icon icon-search">
+                          <button type="submit" class="boton btn-success right">Buscar</button>
+                        </i>
+                      </span>
+                    </div>
 
-          <form class="form-inline">
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          {% endcomment %}
+          <form class="form-inline" method="get">
             <div class="md-form my-0">
-              <input class="form-control mr-sm-2" type="text" placeholder="Buscar" aria-label="Search">
+              <input class="form-control mr-sm-2" type="text" placeholder="Buscar" name="buscar">
             </div>
           </form>
+
         </div>
         <!-- Collapsible content -->
 
@@ -55,47 +76,57 @@
 
         <div class="row wow fadeIn">
 
-          {% for item in object_list %}
-          <div class="col-lg-3 col-md-6 mb-4">
+          {% if object_list.size == 0 %}
+            <h5>
+              <strong>
+                <p>No se encuentran elementos para mostrar
+                </p>
+              </strong>
+            </h5>
+          {% else %}
+            {% for item in object_list %}
 
-            <div class="card">
+            <div class="col-lg-3 col-md-6 mb-4">
 
-              <div class="view overlay">
-                {% comment %} <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Vertical/12.jpg" class="card-img-top" {% endcomment %}
-                <img src="{{ item.image.url }}" class="card-img-top">
-                <a href="{{ item.get_absolute_url }}">
-                  <div class="mask rgba-white-slight"></div>
-                </a>
-              </div>
+              <div class="card">
 
-              <div class="card-body text-center">
-                <a href="" class="grey-text">
-                  <h5>{{ item.get_category_display }}</h5>
-                </a>
-                <h5>
-                  <strong>
-                    <a href="{{ item.get_absolute_url }}" class="dark-grey-text">{{ item.title }}
-                      <span class="badge badge-pill success-color">NEW</span>
-                    </a>
-                  </strong>
-                </h5>
+                <div class="view overlay">
+                  {% comment %} <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Vertical/12.jpg" class="card-img-top" {% endcomment %}
+                  <img src="{{ item.image.url }}" class="card-img-top">
+                  <a href="{{ item.get_absolute_url }}">
+                    <div class="mask rgba-white-slight"></div>
+                  </a>
+                </div>
 
-                <h4 class="font-weight-bold blue-text">
-                  <strong>$
-                  {% if item.discount_price %}
-                  {{ item.discount_price|floatformat:2 }}
-                  {% else %}
-                  {{ item.price|floatformat:2 }}
-                  {% endif %}
-                  </strong>
-                </h4>
+                <div class="card-body text-center">
+                  <a href="" class="grey-text">
+                    <h5>{{ item.get_category_display }}</h5>
+                  </a>
+                  <h5>
+                    <strong>
+                      <a href="{{ item.get_absolute_url }}" class="dark-grey-text">{{ item.title }}
+                        <span class="badge badge-pill success-color">NEW</span>
+                      </a>
+                    </strong>
+                  </h5>
+
+                  <h4 class="font-weight-bold blue-text">
+                    <strong>$
+                    {% if item.discount_price %}
+                    {{ item.discount_price|floatformat:2 }}
+                    {% else %}
+                    {{ item.price|floatformat:2 }}
+                    {% endif %}
+                    </strong>
+                  </h4>
+
+                </div>
 
               </div>
 
             </div>
-
-          </div>
-          {% endfor %}
+            {% endfor %}
+          {% endif %}
         </div>
 
       </section>

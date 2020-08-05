@@ -14,6 +14,8 @@ from django.views.generic import ListView, DetailView, View
 
 from .forms import CheckoutForm, CouponForm, RefundForm, PaymentForm
 from .models import Item, OrderItem, Order, Address, Payment, Coupon, Refund, UserProfile
+from django.db.models import Q
+from django.core.paginator import Paginator
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -348,17 +350,53 @@ class PaymentView(View):
         messages.warning(self.request, "Invalid data received")
         return redirect("/payment/stripe/")
 
-
-class HomeView(ListView):
-    model = Item
-    paginate_by = 10
-    template_name = "home.html"
-
-def buscar(request):
+def homeview(request):
+    queryset= request.GET.get("buscar")
+    if queryset:
+        items = Item.objects.filter(
+            Q(title__icontains = queryset) |
+            Q(description__icontains = queryset)
+        ).distinct()
+    else:
+        items = Item.objects.all()
+    paginator = Paginator(items, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        'items': Item.objects.filter(request.item.slug)
+        'object_list': items,
+        'page_number': page_number,
+        'page_obj': page_obj
     }
-    return render(request, "products.html", context)
+    return render(request, "home.html", context)
+
+#class HomeView(ListView):
+#    model = Item
+#    paginate_by = 10
+#    template_name = "home.html"
+#    def get(self, *args, **kwargs):
+#        queryset= self.request.GET.get("buscar")
+#        print(queryset)
+#        if queryset:
+#            items = Item.objects.filter(
+#                Q(title = queryset) |
+#                Q(description = queryset) |
+#                Q(category = queryset)
+#            ).distinct()
+#        else:
+#            items = Item.objects.all()
+#        context = {
+#            'object_list': items
+#        }
+        #try:
+        #    order = Order.objects.get(user=self.request.user, ordered=False)
+        #    context = {
+        #        'object': order
+        #    }
+        #    return render(self.request, 'order_summary.html', context)
+        #except ObjectDoesNotExist:
+        #    messages.warning(self.request, "You do not have an active order")
+        #    return redirect("/")
+        #return render(self.request, "home.html", context)
 
 
 class OrderSummaryView(LoginRequiredMixin, View):
@@ -373,6 +411,12 @@ class OrderSummaryView(LoginRequiredMixin, View):
             messages.warning(self.request, "You do not have an active order")
             return redirect("/")
 
+def item_detail_view(request, slug):
+    context={
+        'object': Item.objects.get(slug=slug)
+    }
+    print(context)
+    return render(request, 'product.html', context)
 
 class ItemDetailView(DetailView):
     model = Item
