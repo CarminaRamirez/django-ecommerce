@@ -418,9 +418,9 @@ def item_detail_view(request, slug):
     print(context)
     return render(request, 'product.html', context)
 
-class ItemDetailView(DetailView):
-    model = Item
-    template_name = "product.html"
+#class ItemDetailView(DetailView):
+#    model = Item
+#    template_name = "product.html"
 
 
 @login_required

@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    ItemDetailView,
+    #ItemDetailView,
     CheckoutView,
     #HomeView,
     OrderSummaryView,
