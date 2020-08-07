@@ -12,10 +12,11 @@ from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from django.views.generic import ListView, DetailView, View
 
-from .forms import CheckoutForm, CouponForm, RefundForm, PaymentForm
-from .models import Item, OrderItem, Order, Address, Payment, Coupon, Refund, UserProfile
+from .forms import CheckoutForm, CouponForm, RefundForm, PaymentForm, InicioSesionForm
+from .models import Item, OrderItem, Order, Address, Payment, Coupon, Refund, PerfilDeUsuario
 from django.db.models import Q
 from django.core.paginator import Paginator
+from django.contrib.auth import authenticate, login
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -244,7 +245,7 @@ class PaymentView(View):
     def post(self, *args, **kwargs):
         order = Order.objects.get(user=self.request.user, ordered=False)
         form = PaymentForm(self.request.POST)
-        userprofile = UserProfile.objects.get(user=self.request.user)
+        userprofile = PerfilDeUsuario.objects.get(user=self.request.user)
         if form.is_valid():
             token = form.cleaned_data.get('stripeToken')
             save = form.cleaned_data.get('save')
@@ -571,3 +572,39 @@ class RequestRefundView(View):
             except ObjectDoesNotExist:
                 messages.info(self.request, "This order does not exist.")
                 return redirect("core:request-refund")
+
+def iniciar_sesion(request):
+    context={
+        'form': InicioSesionForm()
+    }
+    return render(request, 'iniciar_sesion.html', {})
+
+def iniciar_sesioon(request):
+
+    if request.method == "POST":
+        miFormulario= InicioSesionForm(request.POST)
+
+        if miFormulario.is_valid():
+            infForm= miFormulario.cleaned_data
+
+            usuario = PerfilDeUsuario(infForm)
+            #return render(request, 'enviado.html')
+
+            username = request.POST['nombreUsuario']
+            password = request.POST['contraseña']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('/')
+                # Redirect to a success page.
+                ...
+            else:
+                miFormulario.add_error('nombreUsuario', "Usuario inválido")
+                return render(request, 'iniciar_sesioon.html', {'form': miFormulario})
+                ...
+    else:
+        miFormulario= InicioSesionForm()
+
+
+
+    return render(request, 'iniciar_sesioon.html', {'form': miFormulario})

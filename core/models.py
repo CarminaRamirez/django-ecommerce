@@ -24,15 +24,15 @@ ADDRESS_CHOICES = (
 ) # opciones de dirección
 
 
-class UserProfile(models.Model): # Perfil de usuario
-    user = models.OneToOneField(
+class PerfilDeUsuario(models.Model): # Perfil de usuario
+    usuario = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE) # Usuario contiene el modelo con relación uno a uno de 'AUTH_USER_MODEL' y 'CASCADE'
     stripe_customer_id = models.CharField(max_length=50, blank=True, null=True) # id del cliente es un campo char con parámetros de diferentes
                                                                                 # atributos
     one_click_purchasing = models.BooleanField(default=False) # compra con un click, campo booleano, el valor por defecto es Falso
 
     def __str__(self): # función str, retorna el nombre del usuario
-        return self.user.username
+        return self.usuario.username
 
 
 class Item(models.Model): # clase item (producto) con sus atributos
@@ -182,7 +182,7 @@ class Refund(models.Model):
 
 def userprofile_receiver(sender, instance, created, *args, **kwargs):
     if created:
-        userprofile = UserProfile.objects.create(user=instance)
+        userprofile = PerfilDeUsuario.objects.create(user=instance)
 
 
 post_save.connect(userprofile_receiver, sender=settings.AUTH_USER_MODEL)

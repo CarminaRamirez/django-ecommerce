@@ -63,3 +63,11 @@ class PaymentForm(forms.Form): # formulario de pago
     stripeToken = forms.CharField(required=False)
     save = forms.BooleanField(required=False)
     use_default = forms.BooleanField(required=False)
+
+class InicioSesionForm(forms.Form):
+    nombreUsuario = forms.CharField(widget=forms.TextInput(attrs={
+        'placeholder': 'Nombre de usuario'
+    }))
+    #email = forms.EmailField()
+    contraseña = forms.CharField(widget=forms.PasswordInput)
+    #recordar = forms.BooleanField()

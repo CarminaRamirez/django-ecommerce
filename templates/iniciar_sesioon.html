@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<html>
+<body>
+
+    <h1>Inicio de sesión</h1>
+
+    {% if form.errors %}
+    <p style="color: red;">Por favor revisa los datos ingresados</p>
+    {% endif %}
+
+    <form action="" method="POST">{% csrf_token %}
+        <table>
+            {{form.as_table}}
+        </table>
+        <p class="forgot"><a href="#">¿Te olvidaste la contraseña?</a></p>
+        <input type="submit" value="Enviar">
+    </form>
+
+</body>
+</html>
+
+{% endblock content %}

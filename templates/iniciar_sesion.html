@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% comment %}<form class="signup"  method="post" action="{% url 'socialaccount_signup' %}">
+  {% csrf_token %}
+  {{ form.as_p }}
+  {% if redirect_field_value %}
+  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+  {% endif %}
+  <button type="submit">{% trans "Sign Up" %} &raquo;</button>
+</form> {% endcomment %}
+<div class="form">
+        <div id="login">
+            <h1>Bienvenido!</h1>
+            {% if form.errors %}
+                <p class="error">Lo sentimos, la combinacion de usuario y contrasena no es correcta!</p>
+            {% endif %}
+            <form action="/accounts/auth/" method="post">
+            {% csrf_token %}
+            <form class="signup" id="signup_form" method="post" action="/">
+            <button action="/" method="post">
+                <div class="field-wrap">
+                    <label>Dirección de correo<span class="req">*</span> </label>
+                    <input type="email"required autocomplete="off"/>
+                </div>
+
+                <div class="field-wrap">
+                    <label>Contraseña<span class="req">*</span></label>
+                    <input type="password"required autocomplete="off"/>
+                </div>
+
+                <p class="forgot"><a href="#">¿Te olvidaste la contraseña?</a></p>
+
+                <button class="button button-block"/>Iniciar Sesión</button>
+
+            </form>
+        </div>
+
+</div>
+
+{% endblock content %}
